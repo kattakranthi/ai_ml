@@ -1,0 +1,29 @@
+import numpy as np
+
+#Use ddof=0 if you have all data points (population). Use Population variance when you have all the dataset.
+#Use ddof=1 if you have a sample and want an unbiased estimate of variance. Use Sample variance when you have dataset from a larger dataset.
+  
+data = [100, 150, 200, 50, 300]
+
+# Population variance (ddof=0)
+pop_variance = np.var(data, ddof=0)
+
+# Sample variance (ddof=1)
+sample_variance = np.var(data, ddof=1)
+
+print("Population Variance:", pop_variance)
+print("Sample Variance:", sample_variance)
+
+#output
+#Population Variance: 8330.0
+#Sample Variance: 10412.5
+
+#Use the statistics module to use variance method
+import statistics
+
+data = [10, 20, 30, 40, 50]
+
+# Sample variance
+sample_variance = statistics.variance(data)
+
+print("Sample Variance:", sample_variance)
