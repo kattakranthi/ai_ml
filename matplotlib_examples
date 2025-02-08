@@ -1,0 +1,80 @@
+#Basic Line Plot
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4, 5]
+y = [10, 20, 25, 30, 40]
+
+plt.plot(x, y, marker='o', linestyle='-', color='b', label='Line 1')
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("Basic Line Plot")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+#Bar Chart
+import matplotlib.pyplot as plt
+
+categories = ['A', 'B', 'C', 'D']
+values = [5, 7, 3, 8]
+
+plt.bar(categories, values, color=['blue', 'red', 'green', 'purple'])
+plt.xlabel("Categories")
+plt.ylabel("Values")
+plt.title("Bar Chart Example")
+plt.show()
+
+#Scatter Plot
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.random.rand(50)
+y = np.random.rand(50)
+
+plt.scatter(x, y, color='red', marker='o', alpha=0.6)
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("Scatter Plot Example")
+plt.show()
+
+#Histogram
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = np.random.randn(1000)
+
+plt.hist(data, bins=30, color='blue', edgecolor='black', alpha=0.7)
+plt.xlabel("Value")
+plt.ylabel("Frequency")
+plt.title("Histogram Example")
+plt.show()
+
+#Pie Chart
+import matplotlib.pyplot as plt
+
+labels = ['Apple', 'Banana', 'Cherry', 'Dates']
+sizes = [30, 20, 35, 15]
+colors = ['red', 'yellow', 'pink', 'brown']
+
+plt.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', startangle=140)
+plt.title("Pie Chart Example")
+plt.show()
+
+#Multiple Line Plots
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4, 5]
+y1 = [10, 20, 25, 30, 40]
+y2 = [5, 15, 20, 25, 35]
+
+plt.plot(x, y1, marker='o', linestyle='-', color='blue', label='Line 1')
+plt.plot(x, y2, marker='s', linestyle='--', color='green', label='Line 2')
+
+plt.xlabel("X-axis")
+plt.ylabel("Y-axis")
+plt.title("Multiple Line Plot")
+plt.legend()
+plt.grid(True)
+plt.show()
+
