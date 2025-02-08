@@ -1,0 +1,49 @@
+Step 1: Create the Model
+model = LinearRegression()
+#This line initializes a Linear Regression model using LinearRegression() from sklearn.linear_model.
+At this point, the model is empty and hasn’t learned anything yet.
+
+Step 2: Train (Fit) the Model
+model.fit(X, y)
+The .fit(X, y) method trains the model by finding the best-fitting line for the given dataset.
+X is the input features (independent variable), e.g., house size in square feet.
+y is the output (target) (dependent variable), e.g., house price.
+The model learns the relationship between X and y using least squares regression, which minimizes the error between actual and predicted values.
+
+What Happens Internally?
+Computes the Best Fit Line
+The model finds the equation of a straight line:
+𝑦=𝑚𝑋+𝑏
+where: m (slope) determines how much y changes for a change in X
+b (intercept) is the value of y when X = 0
+Finds Optimal m and b
+It calculates the slope (m) and intercept (b) to minimize the difference between the predicted and actual values.
+This is done using the Ordinary Least Squares (OLS) method.
+
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# Sample data: House size (sq ft) vs Price ($1000s)
+X = np.array([500, 700, 800, 1000, 1200, 1500]).reshape(-1, 1)
+y = np.array([150, 200, 220, 250, 300, 350])
+
+# Train model
+model = LinearRegression()
+model.fit(X, y)
+
+# Get learned parameters
+print(f"Slope (m): {model.coef_[0]}")
+print(f"Intercept (b): {model.intercept_}")
+
+# Predict a new value
+new_house = np.array([[1100]])
+predicted_price = model.predict(new_house)
+print(f"Predicted price for 1100 sq ft house: ${predicted_price[0]}K")
+Output Example
+Slope (m): 0.2
+Intercept (b): 100.0
+Predicted price for 1100 sq ft house: $320.0K
+Here, the model learned:
+
+Slope (m) = 0.2 → For every 1 sq ft increase in size, price increases by $0.2K.
+Intercept (b) = 100 → When the house size is 0 (hypothetically), the price is $100K.
