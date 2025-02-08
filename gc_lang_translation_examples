@@ -1,0 +1,52 @@
+#Steps to Run This Script:
+Install Google Cloud Translation SDK:
+pip install google-cloud-translate
+
+#Set up authentication by creating a Google Cloud Service Account Key and setting the environment variable:
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-key.json"
+
+from google.cloud import translate_v2 as translate
+
+def translate_text(text, source_language, target_language="en"):
+    """
+    Translate text from source_language to target_language using Google Cloud Translation API.
+    """
+    client = translate.Client()
+    result = client.translate(text, source_language=source_language, target_language=target_language)
+    return result["translatedText"]
+
+def chat_conversation():
+    """
+    Simulate a conversation where messages are translated from Spanish and Hindi to English.
+    """
+    messages = [
+        ("es", "Hola, ¿cómo estás?"),  # Spanish: Hello, how are you?
+        ("hi", "आप कैसे हैं?"),       # Hindi: How are you?
+        ("es", "Estoy bien, gracias."),  # Spanish: I'm fine, thanks.
+        ("hi", "मुझे अच्छा लग रहा है।"),  # Hindi: I am feeling good.
+    ]
+
+    print("Chat Conversation (Translated to English):")
+    for lang, msg in messages:
+        translated_msg = translate_text(msg, source_language=lang)
+        print(f"Original ({lang.upper()}): {msg}")
+        print(f"Translated (EN): {translated_msg}\n")
+
+if __name__ == "__main__":
+    chat_conversation()
+
+
+Expected Output:
+
+Chat Conversation (Translated to English):
+Original (ES): Hola, ¿cómo estás?
+Translated (EN): Hello, how are you?
+
+Original (HI): आप कैसे हैं?
+Translated (EN): How are you?
+
+Original (ES): Estoy bien, gracias.
+Translated (EN): I’m fine, thanks.
+
+Original (HI): मुझे अच्छा लग रहा है।
+Translated (EN): I am feeling good.
