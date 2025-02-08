@@ -1,0 +1,51 @@
+#Decision Tree (Classification: Fruit Type)
+from sklearn.tree import DecisionTreeClassifier
+
+# Sample data: [Weight, Size]
+X = [[150, 7], [170, 8], [180, 9], [50, 3], [60, 4], [70, 5]]  
+y = ["Apple", "Apple", "Apple", "Orange", "Orange", "Orange"]
+
+# Train model
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+# Predict a new fruit
+new_fruit = [[160, 8]]  # Weight 160g, Size 8cm
+predicted_fruit = model.predict(new_fruit)
+print(f"Predicted Fruit: {predicted_fruit[0]}")
+
+#4. K-Nearest Neighbors (KNN) Classification
+
+from sklearn.neighbors import KNeighborsClassifier
+
+# Sample data: Height (cm), Weight (kg) -> Male (0) / Female (1)
+X = [[170, 70], [180, 80], [160, 55], [155, 50], [165, 65]]
+y = [0, 0, 1, 1, 1]  # 0 = Male, 1 = Female
+
+# Train model
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(X, y)
+
+# Predict gender for a new person
+new_person = [[175, 75]]  
+predicted_gender = model.predict(new_person)
+print(f"Predicted Gender: {'Female' if predicted_gender[0] == 1 else 'Male'}")
+
+#Support Vector Machine (SVM) for Classification
+python
+Copy
+Edit
+from sklearn.svm import SVC
+
+# Sample data: Exam Score 1, Exam Score 2 -> Pass (1) / Fail (0)
+X = [[85, 80], [90, 85], [70, 60], [60, 55], [75, 65]]
+y = [1, 1, 0, 0, 1]
+
+# Train model
+model = SVC(kernel='linear')
+model.fit(X, y)
+
+# Predict if a student passes with scores (80, 75)
+new_scores = [[80, 75]]
+predicted = model.predict(new_scores)
+print(f"Predicted Result: {'Pass' if predicted[0] == 1 else 'Fail'}")
