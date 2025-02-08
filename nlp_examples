@@ -1,0 +1,82 @@
+#Python NLP (Natural Language Processing). Natural Language Processing (NLP) is a field of AI that enables machines to understand, process, and generate human language. Below are some basic NLP tasks using Python.
+#Key NLP Libraries in Python:
+
+#NLTK → Tokenization, Stopwords, Stemming, Lemmatization
+#spaCy → Faster NLP with Named Entity Recognition (NER)
+#TextBlob → Sentiment Analysis, Translation
+#Google Translate API → Language Translation
+#Gensim → Text Summarization, Topic Modeling
+
+
+#Tokenization (Splitting text into words or sentences)
+import nltk
+nltk.download('punkt')
+from nltk.tokenize import word_tokenize, sent_tokenize
+
+text = "Hello! How are you? I am learning NLP with Python."
+
+# Sentence Tokenization
+sentences = sent_tokenize(text)
+print("Sentences:", sentences)
+
+# Word Tokenization
+words = word_tokenize(text)
+print("Words:", words)
+
+#output
+Sentences: ['Hello!', 'How are you?', 'I am learning NLP with Python.']
+Words: ['Hello', '!', 'How', 'are', 'you', '?', 'I', 'am', 'learning', 'NLP', 'with', 'Python', '.']
+
+#Removing Stopwords (Common words like "the", "is", "and")
+from nltk.corpus import stopwords
+
+nltk.download('stopwords')
+stop_words = set(stopwords.words('english'))
+
+words = ["I", "am", "learning", "NLP", "with", "Python"]
+filtered_words = [word for word in words if word.lower() not in stop_words]
+
+print("Filtered Words:", filtered_words)
+
+#output
+#Filtered Words: ['learning', 'NLP', 'Python']
+
+#Lemmatization (Better than stemming – Converts words to dictionary form)
+from nltk.stem import WordNetLemmatizer
+
+nltk.download('wordnet')
+lemmatizer = WordNetLemmatizer()
+
+words = ["running", "flies", "easily", "studies"]
+lemmatized_words = [lemmatizer.lemmatize(word, pos="v") for word in words]
+
+print("Lemmatized Words:", lemmatized_words)
+#Lemmatized Words: ['run', 'fly', 'easily', 'study']
+
+#Named Entity Recognition (NER) – Extracting Names, Locations, etc.
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+text = "Elon Musk founded SpaceX in 2002 in California."
+
+doc = nlp(text)
+for ent in doc.ents:
+    print(ent.text, "->", ent.label_)
+
+#output
+Elon Musk -> PERSON
+SpaceX -> ORG
+2002 -> DATE
+California -> GPE
+
+#Sentiment Analysis (Finding Positive, Negative, or Neutral Tone)
+from textblob import TextBlob
+
+text = "I love NLP, it's so amazing!"
+sentiment = TextBlob(text).sentiment
+
+print("Polarity:", sentiment.polarity)  # (-1 = Negative, 1 = Positive)
+print("Subjectivity:", sentiment.subjectivity)  # (0 = Fact, 1 = Opinion)
+#output
+Polarity: 0.75
+Subjectivity: 0.6
