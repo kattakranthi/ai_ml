@@ -1,3 +1,5 @@
+#1. Linear Regression (Predicting House Prices)
+
 Step 1: Create the Model
 model = LinearRegression()
 #This line initializes a Linear Regression model using LinearRegression() from sklearn.linear_model.
