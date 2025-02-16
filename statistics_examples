@@ -1,0 +1,31 @@
+from statistics import mean
+
+data = [15, 20, 35, 40, 50]
+
+# Calculate mean
+mean_value = mean(data)
+print(f"Mean: {mean_value}")
+
+from statistics import median
+
+data = [15, 20, 35, 40, 50]
+
+# Calculate median
+median_value = median(data)
+print(f"Median: {median_value}")
+
+from statistics import mode
+from collections import Counter
+
+data = [10, 20, 20, 30, 30, 30, 40]
+
+# Using statistics
+mode_stat = mode(data)
+print(f"Mode (statistics): {mode_stat}")
+
+# Using collections
+mode_count = Counter(data).most_common(1)[0][0]
+print(f"Mode (Counter): {mode_count}")
+
+#Variance measures the spread of numbers from the mean.
+
