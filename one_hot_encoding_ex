@@ -1,0 +1,75 @@
+#One-hot encoding is a technique to convert categorical data into a numerical format. 
+#It's commonly used in machine learning to handle non-numeric data like labels or categories.
+
+#One-Hot Encoding with pandas
+
+import pandas as pd
+
+# Sample data
+df = pd.DataFrame({'Color': ['Red', 'Blue', 'Green', 'Red', 'Blue']})
+
+# One-hot encoding
+encoded_df = pd.get_dummies(df, columns=['Color'])
+
+print(encoded_df)
+
+#Output 
+   Color_Blue  Color_Green  Color_Red
+0           0            0          1
+1           1            0          0
+2           0            1          0
+3           0            0          1
+4           1            0          0
+
+
+#One-Hot Encoding with sklearn
+
+from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
+
+# Sample data
+data = pd.DataFrame({'Color': ['Red', 'Blue', 'Green', 'Red', 'Blue']})
+
+# Initialize encoder
+encoder = OneHotEncoder(sparse=False, drop='first')  # drop='first' avoids multicollinearity
+
+# Fit and transform data
+encoded = encoder.fit_transform(data[['Color']])
+
+# Convert to DataFrame
+encoded_df = pd.DataFrame(encoded, columns=encoder.get_feature_names_out(['Color']))
+
+print(encoded_df)
+
+#Using One-Hot Encoding in a Machine Learning Model
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+
+# Sample dataset
+df = pd.DataFrame({
+    'Color': ['Red', 'Blue', 'Green', 'Red', 'Blue'],
+    'Size': ['S', 'M', 'L', 'XL', 'M'],
+    'Price': [10, 20, 15, 25, 20],
+    'Sold': [1, 0, 0, 1, 0]
+})
+
+# One-hot encoding categorical columns
+df = pd.get_dummies(df, columns=['Color', 'Size'], drop_first=True)
+
+# Features and target
+X = df.drop(columns='Sold')
+y = df['Sold']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train a model
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+# Predict
+predictions = model.predict(X_test)
+
+print(f"Predictions: {predictions}")
+
