@@ -1,0 +1,33 @@
+#Quantitative data consists of measurable values like age, height, temperature, or stock prices.
+
+#Quantitative data refers to numbers or measurable values (e.g., age, height, test scores).
+# Example: Analyze test scores
+import numpy as np
+
+# Quantitative Data: Test scores
+scores = np.array([85, 90, 78, 92, 88, 76, 95])
+
+# Calculate average, maximum, and minimum scores
+average_score = np.mean(scores)
+max_score = np.max(scores)
+min_score = np.min(scores)
+
+print(f"Average Score: {average_score}")
+print(f"Highest Score: {max_score}")
+print(f"Lowest Score: {min_score}")
+
+#Qualitative data refers to categories or descriptive attributes (e.g., colors, feedback, gender).
+
+# Example: Analyze survey responses
+from collections import Counter
+
+# Qualitative Data: Survey responses about favorite subjects
+responses = ['Math', 'Science', 'Math', 'English', 'Science', 'Math', 'History']
+
+# Count the number of responses per subject
+subject_counts = Counter(responses)
+
+print("Survey Results:")
+for subject, count in subject_counts.items():
+    print(f"{subject}: {count} votes")
+
