@@ -45,3 +45,17 @@ Imputed Data:
 
 #imputer = SimpleImputer(strategy='constant', fill_value=0)
 #Fill Missing Values with a constant
+
+#Column-wise Imputation (Default, axis=0)
+imputer_col = SimpleImputer(strategy='mean')
+imputed_col = imputer_col.fit_transform(data)
+print("Column-wise Mean Imputation:\n", imputed_col)
+
+#Row-wise Imputation (axis=1 simulation)
+#
+#Since SimpleImputer doesn’t directly support axis=1,
+#we handle it by transposing before and after fitting.
+
+imputer_row = SimpleImputer(strategy='mean')
+imputed_row = imputer_row.fit_transform(data.T).T
+print("Row-wise Mean Imputation:\n", imputed_row)
