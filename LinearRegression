@@ -1,0 +1,158 @@
+# train_linear_model.py
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import joblib
+
+# -----------------------
+# 1. Generate Mock Trade Data
+# -----------------------
+np.random.seed(42)
+n = 1000
+trade_data = pd.DataFrame({
+    "quantity": np.random.randint(10, 500, n),
+    "price": np.random.uniform(50, 500, n),
+    "volatility": np.random.uniform(0.05, 0.3, n),
+    "sector_enc": np.random.choice([0, 1, 2, 3], n),   # encoded sector
+    "trade_type_enc": np.random.choice([0, 1], n),     # BUY=1, SELL=0
+    "return_next_day": np.random.uniform(-0.02, 0.03, n)
+})
+
+# -----------------------
+# 2. Split into Train/Test
+# -----------------------
+X = trade_data[["quantity", "price", "volatility", "sector_enc", "trade_type_enc"]]
+y = trade_data["return_next_day"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# -----------------------
+# 3. Train Linear Regression
+# -----------------------
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+preds = model.predict(X_test)
+mse = mean_squared_error(y_test, preds)
+print(f"Model MSE: {mse:.8f}")
+
+# -----------------------
+# 4. Save model and data
+# -----------------------
+joblib.dump(model, "trade_linear_model.joblib")
+trade_data.to_csv("trade_features_db.csv", index=False)
+print("✅ Model saved as 'trade_linear_model.joblib'")
+
+#Prediction Model
+# app_linear_model.py
+import dataclasses
+import uuid
+import numpy as np
+import pandas as pd
+from flask import Flask, jsonify, request
+from flask_pydantic import validate
+from pydantic import BaseModel
+from typing import Optional, Literal
+import joblib
+
+# -----------------------
+# Load Model and Data
+# -----------------------
+model = joblib.load("trade_linear_model.joblib")
+trade_db = pd.read_csv("trade_features_db.csv")
+features = ["quantity", "price", "volatility", "sector_enc", "trade_type_enc"]
+
+app = Flask(__name__)
+
+# -----------------------
+# Request/Response Models
+# -----------------------
+class TradeFeatures(BaseModel):
+    quantity: float
+    price: float
+    volatility: float
+    sector_enc: int
+    trade_type_enc: int
+
+class TradePredictionInput(BaseModel):
+    trade: TradeFeatures
+
+class TradePredictionOutput(BaseModel):
+    prediction_id: str
+    predicted_return: float
+
+class TradeFeedbackInput(BaseModel):
+    prediction_id: str
+    feedback: Literal["positive", "negative"]
+
+class TradeFeedbackOutput(BaseModel):
+    prediction_id: str
+    status: str
+
+# store feedback results
+feedback_db = {}
+
+# -----------------------
+# Endpoints
+# -----------------------
+
+@app.post("/trade/predict")
+@validate()
+def predict_trade(body: TradePredictionInput) -> TradePredictionOutput:
+    """Predict next-day return using linear regression model."""
+    trade_features = np.array([
+        body.trade.quantity,
+        body.trade.price,
+        body.trade.volatility,
+        body.trade.sector_enc,
+        body.trade.trade_type_enc
+    ]).reshape(1, -1)
+    
+    pred = model.predict(trade_features)[0]
+    prediction_id = str(uuid.uuid4())
+
+    return TradePredictionOutput(
+        prediction_id=prediction_id,
+        predicted_return=float(pred)
+    )
+
+@app.post("/trade/feedback")
+@validate()
+def trade_feedback(body: TradeFeedbackInput) -> TradeFeedbackOutput:
+    """Store feedback for model predictions."""
+    feedback_db[body.prediction_id] = body.feedback
+    return TradeFeedbackOutput(
+        prediction_id=body.prediction_id,
+        status=f"Feedback '{body.feedback}' recorded."
+    )
+
+# -----------------------
+# Run App
+# -----------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8666, debug=True)
+
+"""
+Request:
+POST http://127.0.0.1:8666/trade/predict
+Content-Type: application/json
+
+{
+  "trade": {
+    "quantity": 300,
+    "price": 250.5,
+    "volatility": 0.15,
+    "sector_enc": 1,
+    "trade_type_enc": 0
+  }
+}
+Response:
+{
+  "prediction_id": "3d4fbc0e-92b4-44b2-9a13-90b4d75e8c01",
+  "predicted_return": 0.01235124
+}
+
+"""
+
