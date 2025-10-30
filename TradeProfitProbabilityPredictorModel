@@ -1,0 +1,104 @@
+import dataclasses
+import random
+import uuid
+from typing import Literal, Optional
+
+import numpy as np
+import pandas as pd
+from flask import Flask, request, jsonify
+from flask_pydantic import validate
+from pydantic import BaseModel
+from sklearn.linear_model import LogisticRegression
+import joblib
+
+# --- Synthetic Trade Data ---
+np.random.seed(42)
+trade_db = pd.DataFrame({
+    "tradeID": [f"T{i}" for i in range(1, 201)],
+    "stock_price_open": np.random.uniform(100, 500, 200),
+    "stock_price_close": np.random.uniform(100, 500, 200),
+    "stock_volume": np.random.uniform(1000, 10000, 200),
+    "previous_day_return": np.random.uniform(-0.05, 0.05, 200),
+    "trade_type": np.random.randint(0, 2, 200)  # 0 = sell, 1 = buy
+})
+
+features = ["stock_price_open", "stock_price_close", "stock_volume", "previous_day_return", "trade_type"]
+
+# --- Generate target: trade profitable or not ---
+weights = np.array([0.3, 0.3, 0.1, 0.4, 0.2])
+bias = -0.1
+linear_comb = np.dot(trade_db[features].values, weights) + bias + np.random.normal(0, 0.05, trade_db.shape[0])
+trade_db['trade_success'] = (linear_comb > np.median(linear_comb)).astype(int)
+
+# --- Train ML model ---
+X = trade_db[features]
+y = trade_db['trade_success']
+model = LogisticRegression()
+model.fit(X, y)
+
+# Save the model for API usage
+joblib.dump(model, "trade_profit_model.joblib")
+
+# --- Flask App ---
+app = Flask(__name__)
+nn_model = joblib.load("trade_profit_model.joblib")
+
+# --- Stats for normalization (optional) ---
+@dataclasses.dataclass
+class Stats:
+    mean: float
+    std: float
+    def z(self, x):
+        return (x - self.mean) / self.std
+
+trade_stats = {
+    feature: Stats(trade_db[feature].mean(), trade_db[feature].std()) for feature in features[:-1]
+}
+
+# --- Pydantic Models ---
+class TradeFeatures(BaseModel):
+    stock_price_open: Optional[float] = None
+    stock_price_close: Optional[float] = None
+    stock_volume: Optional[float] = None
+    previous_day_return: Optional[float] = None
+    trade_type: Optional[Literal[0, 1]] = None
+
+class TradePredictionInput(BaseModel):
+    trade_id: Optional[str] = None
+    features: Optional[TradeFeatures] = None
+
+class TradePredictionOutput(BaseModel):
+    trade_id: Optional[str]
+    prediction_id: str
+    profit_probability: float
+
+# --- API Endpoints ---
+@app.post('/trade/predict')
+@validate()
+def predict_trade(body: TradePredictionInput) -> TradePredictionOutput:
+    # Either use trade_id from database or user-provided features
+    if body.trade_id:
+        if body.trade_id not in trade_db['tradeID'].values:
+            return jsonify({"error": f"Trade ID {body.trade_id} not found"}), 404
+        x_input = trade_db.loc[trade_db['tradeID'] == body.trade_id, features].values
+    elif body.features:
+        x_input = np.array([
+            body.features.stock_price_open or trade_stats['stock_price_open'].mean(),
+            body.features.stock_price_close or trade_stats['stock_price_close'].mean(),
+            body.features.stock_volume or trade_stats['stock_volume'].mean(),
+            body.features.previous_day_return or trade_stats['previous_day_return'].mean(),
+            body.features.trade_type or 0
+        ]).reshape(1, -1)
+    else:
+        return jsonify({"error": "Must provide either trade_id or features"}), 400
+
+    # Predict probability
+    prob = nn_model.predict_proba(x_input)[0][1]
+    return TradePredictionOutput(
+        trade_id=body.trade_id,
+        prediction_id=str(uuid.uuid4()),
+        profit_probability=prob
+    )
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=8657, debug=True)
