@@ -73,3 +73,37 @@ predictions = model.predict(X_test)
 
 print(f"Predictions: {predictions}")
 
+#OneHotEncoder with sklearn
+from sklearn.preprocessing import OneHotEncoder
+import pandas as pd
+
+# Sample data
+data = pd.DataFrame({
+    'City': ['New York', 'Los Angeles', 'Chicago', 'New York', 'Chicago']
+})
+
+# Initialize encoder
+encoder = OneHotEncoder()
+
+# Fit and transform the data
+encoded = encoder.fit_transform(data[['City']])
+
+# Convert the encoded data to a DataFrame
+encoded_df = pd.DataFrame(
+    encoded.toarray(), 
+    columns=encoder.get_feature_names_out(['City'])
+)
+
+# Combine original and encoded data (optional)
+result = pd.concat([data, encoded_df], axis=1)
+
+print(result)
+#Output
+          City  City_Chicago  City_Los Angeles  City_New York
+0     New York           0.0               0.0            1.0
+1  Los Angeles           0.0               1.0            0.0
+2      Chicago           1.0               0.0            0.0
+3     New York           0.0               0.0            1.0
+4      Chicago           1.0               0.0            0.0
+
+
