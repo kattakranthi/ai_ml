@@ -1,0 +1,171 @@
+#Create DAG
+
+from airflow import DAG
+from datetime import datetime
+
+with DAG(
+    dag_id="my_first_dag",
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@daily",
+    catchup=False
+):
+    pass
+
+
+#DAG With Tasks & Dependencies
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from datetime import datetime
+
+with DAG(
+    dag_id="simple_dag",
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@daily",
+    catchup=False
+):
+
+    task1 = BashOperator(
+        task_id='start_task',
+        bash_command='echo "Starting the pipeline"'
+    )
+
+    task2 = BashOperator(
+        task_id='process_task',
+        bash_command='echo "Processing data..."'
+    )
+
+    task3 = BashOperator(
+        task_id='end_task',
+        bash_command='echo "Pipeline complete"'
+    )
+
+    task1 >> task2 >> task3
+
+#DAG with PythonOperator
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+def say_hello():
+    print("Hello from Python!")
+
+with DAG(
+    dag_id="python_operator_dag",
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@daily",
+    catchup=False,
+):
+
+    hello_task = PythonOperator(
+        task_id="hello_task",
+        python_callable=say_hello
+    )
+
+#ETL Style DAG (Extract → Transform → Load)
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+def extract():
+    print("Extracting data...")
+    return {"value": 10}
+
+def transform(ti):
+    data = ti.xcom_pull(task_ids="extract_task")
+    data["value"] *= 2
+    print("Transformed:", data)
+    return data
+
+def load(ti):
+    final = ti.xcom_pull(task_ids="transform_task")
+    print("Loading:", final)
+
+with DAG(
+    dag_id="etl_dag",
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@hourly",
+    catchup=False,
+):
+
+    extract_task = PythonOperator(
+        task_id="extract_task",
+        python_callable=extract,
+    )
+
+    transform_task = PythonOperator(
+        task_id="transform_task",
+        python_callable=transform,
+    )
+
+    load_task = PythonOperator(
+        task_id="load_task",
+        python_callable=load,
+    )
+
+    extract_task >> transform_task >> load_task
+
+#DAG with Branching (if-else logic)
+from airflow import DAG
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.bash import BashOperator
+from datetime import datetime
+
+def decide_branch():
+    return "task_a" if datetime.now().minute % 2 == 0 else "task_b"
+
+with DAG(
+    dag_id="branching_dag",
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@hourly",
+    catchup=False,
+):
+
+    branch = BranchPythonOperator(
+        task_id="branch_task",
+        python_callable=decide_branch,
+    )
+
+    task_a = BashOperator(
+        task_id="task_a",
+        bash_command="echo 'Even minute branch executed'"
+    )
+
+    task_b = BashOperator(
+        task_id="task_b",
+        bash_command="echo 'Odd minute branch executed'"
+    )
+
+    branch >> [task_a, task_b]
+
+#DAG with Retry & SLA & Default Args
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from datetime import datetime, timedelta
+
+default_args = {
+    "owner": "kranthi",
+    "retries": 3,
+    "retry_delay": timedelta(minutes=2),
+}
+
+with DAG(
+    dag_id="retry_dag",
+    default_args=default_args,
+    start_date=datetime(2024, 1, 1),
+    schedule_interval="@daily",
+    catchup=False,
+):
+
+    task = BashOperator(
+        task_id="unstable_task",
+        bash_command="exit 1",  # it will retry 3 times
+    )
+
+#DAG With Multiple Task Dependencies
+task1 >> [task2, task3] >> task4
+
+
+Means:
+
+task1 → task2 → task4
+task1 → task3 → task4
