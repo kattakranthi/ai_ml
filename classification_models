@@ -1,0 +1,118 @@
+1. Health Data
+
+Dataset: Breast Cancer Wisconsin (Diagnostic) Dataset
+Source: Built-in in scikit-learn (sklearn.datasets.load_breast_cancer)
+Type: Binary classification (Malignant vs. Benign)
+Features: Tumor measurements (radius, texture, smoothness, etc.)
+Why use this model:
+Logistic Regression: Simple, interpretable, works well for binary outcomes.
+Random Forest: Handles non-linear relations, robust to feature interactions, good for medical data where features may be correlated.
+SVM (Support Vector Machine): Great for high-dimensional feature spaces.
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+data = load_breast_cancer()
+X = data.data
+y = data.target
+
+# Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Model
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+2. Finance Data
+Dataset: Credit Card Fraud Detection Dataset
+
+Source: Kaggle 
+
+Type: Binary classification (Fraud vs. Non-fraud)
+
+Features: Transaction amount, time, anonymized features
+
+Why use this model:
+
+XGBoost: Handles imbalanced datasets well, often used in finance fraud detection.
+
+Logistic Regression: Fast, interpretable, good for baseline.
+
+SMOTE + Random Forest: Handles class imbalance by oversampling minority class.
+
+3. World / Global Data
+
+Dataset: Titanic Survival Dataset
+
+Source: Kaggle or seaborn built-in (sns.load_dataset('titanic'))
+
+Type: Binary classification (Survived vs. Died)
+
+Features: Age, sex, class, fare, embarked
+
+Why use this model:
+
+Decision Tree / Random Forest: Handles categorical + numerical features, interpretable.
+
+Gradient Boosting (XGBoost/LightGBM): High accuracy for tabular structured data.
+
+Python Example:
+
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+titanic = sns.load_dataset('titanic').dropna(subset=['age','fare','sex','pclass'])
+X = pd.get_dummies(titanic[['age','fare','sex','pclass']], drop_first=True)
+y = titanic['survived']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+4. Assets / Financial Market Data
+
+Dataset: Stock Trend Prediction
+
+Source: Yahoo Finance via yfinance library
+
+Type: Binary classification (Price Up vs. Down)
+
+Features: Open, Close, High, Low, Volume, Moving averages
+
+Why use this model:
+
+Logistic Regression: For simple directional predictions.
+
+XGBoost / Random Forest: Capture non-linear relationships, useful for stock patterns.
+
+LSTM (Deep Learning): If using sequential time series data.
+
+import yfinance as yf
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Download stock data
+data = yf.download("AAPL", start="2020-01-01", end="2023-01-01")
+data['Target'] = (data['Close'].shift(-1) > data['Close']).astype(int)
+features = ['Open','High','Low','Close','Volume']
+X = data[features].iloc[:-1]
+y = data['Target'].iloc[:-1]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
